@@ -1,0 +1,11 @@
+#!/bin/bash
+wget -q -O /tmp/hosttracker-ips.txt https://www.host-tracker.com/Agent/IPs
+diff -Z <(tr -d '\r,\t' </etc/csf/csf.allow) <(tr -d '\r,\t' </tmp/hosttracker-ips.txt)|grep ">"|cut -c 3- > /tmp/new-hosttracker-ips.txt
+if [ -s /tmp/new-hosttracker-ips.txt ]
+  then
+        cp /etc/csf/csf.allow /etc/csf/csf.allow.before-add-hostracker-ips
+        echo "#new hosttracker agent ips updated in `date`" >> /etc/csf/csf.allow
+        cat /tmp/new-hosttracker-ips.txt >> /etc/csf/csf.allow
+        echo "#end hostracker agent ips" >> /etc/csf/csf.allow
+        csf -r
+fi
